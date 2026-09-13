@@ -1,4 +1,4 @@
-name: Build ArtisanKRNL
+name: Build BenlyKernelOneUI
 
 on:
   workflow_dispatch:
