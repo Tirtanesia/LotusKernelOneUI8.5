@@ -1,0 +1,40 @@
+name: Build Kernel Android Exynos
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Pasang Paket Pendukung Linux
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bc build-essential libssl-dev libcrypto++-dev xz-utils textinfo libtinfo5
+
+      - name: Unduh Prebuilt AOSP Clang
+        run: |
+          mkdir clang-compiler
+          cd clang-compiler
+          wget https://googlesource.com
+          tar -xf clang-r487747c.tar.gz
+
+      - name: Mulai Kompilasi Kernel
+        run: |
+          export PATH="$(pwd)/clang-compiler/bin:$PATH"
+          export ARCH=arm64
+          export SUBARCH=arm64
+          export CROSS_COMPILE=aarch64-linux-gnu-
+          
+          # Menggunakan defconfig bawaan Lotus Kernel Exynos 990 (codename: exynos990 / s5e9830)
+          make O=out exynos990_defconfig
+          make -j$(nproc) O=out CC=clang
+
+      - name: Unggah Hasil Kernel Image
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hasil-Kernel-OneUI-S20
+          path: out/arch/arm64/boot/Image.gz-dtb
