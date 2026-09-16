@@ -19,8 +19,9 @@ jobs:
         run: |
           mkdir clang-compiler
           cd clang-compiler
-          wget https://googlesource.com
-          tar -xf clang-r487747c.tar.gz
+          wget -q https://googlesource.com -O clang.tar.gz
+          tar -xf clang.tar.gz
+          rm -f clang.tar.gz
 
       - name: Mulai Kompilasi Kernel
         run: |
@@ -38,4 +39,5 @@ jobs:
         with:
           name: Kernel-OneUI-N20
           path: out/arch/arm64/boot/Image.gz-dtb
+
 
