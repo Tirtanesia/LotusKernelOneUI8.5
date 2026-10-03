@@ -56,7 +56,7 @@ CLANG_DIR=$PWD/toolchain/clang_14
 PATH=$CLANG_DIR/bin:$PATH
 
 # Check if toolchain exists
-if [ ! -f "$CLANG_DIR/bin/clang-14" ]; then
+if [ ! -d "$CLANG_DIR/bin" ]; then
     echo "-----------------------------------------------"
     echo "Toolchain not found! Downloading..."
     echo "-----------------------------------------------"
@@ -64,17 +64,21 @@ if [ ! -f "$CLANG_DIR/bin/clang-14" ]; then
     mkdir -p $CLANG_DIR
     pushd $CLANG_DIR > /dev/null
     curl -LJOk https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/master-kernel-build-2022/clang-r450784d.tar.gz
-    tar xf android-13.0.0_r13-clang-r450784d.tar.gz
-    rm android-13.0.0_r13-clang-r450784d.tar.gz
+    tar -xf clang-r450784d.tar.gz
+    rm clang-r450784d.tar.gz
+    
     echo "Cleaning up..."
     popd > /dev/null
 fi
+
+export PATH="$CLANG_DIR/bin:$PATH"
 
 MAKE_ARGS="
 LLVM=1 \
 LLVM_IAS=1 \
 ARCH=arm64 \
-O=out
+O=out \
+LOCALVERSION=-LotusKernel
 "
 
 # Define specific variables
