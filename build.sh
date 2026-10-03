@@ -244,12 +244,9 @@ echo "-----------------------------------------------"
     DATE=`date +"%d-%m-%Y_%H-%M-%S"`
 
     if [[ "$KSU_OPTION" == "y" ]]; then
-        NAME="$version"_"$MODEL"_UNOFFICIAL_KSU_"$DATE".zip
-    else
-        NAME="$version"_"$MODEL"_UNOFFICIAL_"$DATE".zip
-    fi
-    zip -r -qq ../"$NAME" .
-    popd > /dev/null
+    NAME=LotusKernel-"$version"-"$MODEL"-KSU-"$DATE".zip
+else
+    NAME=LotusKernel-"$version"-"$MODEL"-"$DATE".zip
 fi
 
 popd > /dev/null
