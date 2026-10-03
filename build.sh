@@ -17,7 +17,7 @@ Options:
     -m, --model [value]    Specify the model code of the phone
     -k, --ksu [y/N]        Include KernelSU
     -r, --recovery [y/N]   Compile kernel for an Android Recovery
-    -d, --dtbs [y/N]	   Compile only DTBs
+    -d, --dtbs [y/N]       Compile only DTBs
 EOF
 }
 
@@ -39,7 +39,7 @@ while [[ $# -gt 0 ]]; do
             DTB_OPTION="$2"
             shift 2
             ;;
-        *)\
+        *)
             unset_flags
             exit 1
             ;;
@@ -49,7 +49,7 @@ done
 echo "Preparing the build environment..."
 
 pushd $(dirname "$0") > /dev/null
-CORES=`cat /proc/cpuinfo | grep -c processor`
+CORES=$(cat /proc/cpuinfo | grep -c processor)
 
 # Define toolchain variables
 CLANG_DIR=$PWD/toolchain/clang_14
@@ -63,7 +63,7 @@ if [ ! -f "$CLANG_DIR/bin/clang-14" ]; then
     rm -rf $CLANG_DIR
     mkdir -p $CLANG_DIR
     pushd $CLANG_DIR > /dev/null
-    curl -LJOk https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/tags/android-13.0.0_r13/clang-r450784d.tar.gz
+    curl -LJOk https://googlesource.com
     tar xf android-13.0.0_r13-clang-r450784d.tar.gz
     rm android-13.0.0_r13-clang-r450784d.tar.gz
     echo "Cleaning up..."
@@ -102,7 +102,6 @@ c1s)
     BOARD=SRPTB27D009KU
 ;;
 c2slte)
-    BOARD=SRPTC30A009KU
 ;;
 c2s)
     BOARD=SRPTB27C009KU
@@ -129,7 +128,7 @@ if [[ "$KSU_OPTION" == "y" ]]; then
 fi
 
 if [[ "$DTB_OPTION" == "y" ]]; then
-	DTBS=y
+    DTBS=y
 fi
 
 rm -rf build/out/$MODEL
@@ -138,7 +137,7 @@ mkdir -p build/out/$MODEL/zip/META-INF/com/google/android
 
 # Build kernel image
 echo "-----------------------------------------------"
-echo "Defconfig: "$KERNEL_DEFCONFIG""
+echo "Defconfig: $KERNEL_DEFCONFIG"
 if [ -z "$KSU" ]; then
     echo "KSU: N"
 else
@@ -152,9 +151,9 @@ fi
 
 echo "-----------------------------------------------"
 if [ -z "$DTBS" ]; then
-    echo "Building kernel using "$MODEL.config""
+    echo "Building kernel using $MODEL.config"
 else
-    echo "Building DTBs using "$MODEL.config""
+    echo "Building DTBs using $MODEL.config"
 fi
 echo "Generating configuration file..."
 echo "-----------------------------------------------"
@@ -200,31 +199,31 @@ echo "-----------------------------------------------"
 ./toolchain/mkdtimg cfg_create build/out/$MODEL/dtb.img build/dtconfigs/exynos9830.cfg -d out/arch/arm64/boot/dts/exynos
 
 # Build dtbo
-echo "Building Device Tree Blob Output Image for "$MODEL"..."
+echo "Building Device Tree Blob Output Image for $MODEL..."
 echo "-----------------------------------------------"
 ./toolchain/mkdtimg cfg_create build/out/$MODEL/dtbo.img build/dtconfigs/$MODEL.cfg -d out/arch/arm64/boot/dts/samsung
 
 if [ -z "$RECOVERY" ] && [ -z "$DTBS" ]; then
     # Build ramdisk
-echo "Building RAMDisk..."
-echo "-----------------------------------------------"
-if [ "$MODEL" == "c1s" ]; then
-    mkdir -p build/ramdisk_c1s
-    unzip -q build/ramdisk_c1s.zip -d build/ramdisk_c1s
-    pushd build/ramdisk_c1s > /dev/null
-     find . ! -name . | LC_ALL=C sort | cpio -o -H newc -R root:root | gzip > ../out/$MODEL/ramdisk.cpio.gz || abort
-    popd > /dev/null
-else
-    pushd build/ramdisk > /dev/null
-     find . ! -name . | LC_ALL=C sort | cpio -o -H newc -R root:root | gzip > ../out/$MODEL/ramdisk.cpio.gz || abort
-    popd > /dev/null
-fi
-echo "-----------------------------------------------"
+    echo "Building RAMDisk..."
+    echo "-----------------------------------------------"
+    if [ "$MODEL" == "c1s" ]; then
+        mkdir -p build/ramdisk_c1s
+        unzip -q build/ramdisk_c1s.zip -d build/ramdisk_c1s
+        pushd build/ramdisk_c1s > /dev/null
+        find . ! -name . | LC_ALL=C sort | cpio -o -H newc -R root:root | gzip > ../out/$MODEL/ramdisk.cpio.gz || abort
+        popd > /dev/null
+    else
+        pushd build/ramdisk > /dev/null
+        find . ! -name . | LC_ALL=C sort | cpio -o -H newc -R root:root | gzip > ../out/$MODEL/ramdisk.cpio.gz || abort
+        popd > /dev/null
+    fi
+    echo "-----------------------------------------------"
 
     # Create boot image
     echo "Creating boot image..."
     echo "-----------------------------------------------"
-     ./toolchain/mkbootimg --base $BASE --board $BOARD --cmdline "$CMDLINE" --dtb $DTB_PATH \
+    ./toolchain/mkbootimg --base $BASE --board $BOARD --cmdline "$CMDLINE" --dtb $DTB_PATH \
     --dtb_offset $DTB_OFFSET --hashtype $HASHTYPE --header_version $HEADER_VERSION --kernel $KERNEL_PATH \
     --kernel_offset $KERNEL_OFFSET --os_patch_level $OS_PATCH_LEVEL --os_version $OS_VERSION --pagesize $PAGESIZE \
     --ramdisk $RAMDISK --ramdisk_offset $RAMDISK_OFFSET \
@@ -241,12 +240,15 @@ echo "-----------------------------------------------"
     version=$(grep -o 'CONFIG_LOCALVERSION="[^"]*"' arch/arm64/configs/exynos9830_defconfig | cut -d '"' -f 2)
     version=${version:1}
     pushd build/out/$MODEL/zip > /dev/null
-    DATE=`date +"%d-%m-%Y_%H-%M-%S"`
+    DATE=$(date +"%d-%m-%Y_%H-%M-%S")
 
     if [[ "$KSU_OPTION" == "y" ]]; then
-    NAME=LotusKernel-"$version"-"$MODEL"-KSU-"$DATE".zip
-else
-    NAME=LotusKernel-"$version"-"$MODEL"-"$DATE".zip
+        NAME=LotusKernel-"$version"-"$MODEL"-KSU-"$DATE".zip
+    else
+        NAME=LotusKernel-"$version"-"$MODEL"-"$DATE".zip
+    fi
+    zip -r -qq ../"$NAME" .
+    popd > /dev/null
 fi
 
 popd > /dev/null
