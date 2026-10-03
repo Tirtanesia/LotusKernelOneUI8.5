@@ -206,12 +206,20 @@ echo "-----------------------------------------------"
 
 if [ -z "$RECOVERY" ] && [ -z "$DTBS" ]; then
     # Build ramdisk
-    echo "Building RAMDisk..."
-    echo "-----------------------------------------------"
+echo "Building RAMDisk..."
+echo "-----------------------------------------------"
+if [ "$MODEL" == "c1s" ]; then
+    mkdir -p build/ramdisk_c1s
+    unzip -q build/ramdisk_c1s.zip -d build/ramdisk_c1s
+    pushd build/ramdisk_c1s > /dev/null
+     find . ! -name . | LC_ALL=C sort | cpio -o -H newc -R root:root | gzip > ../out/$MODEL/ramdisk.cpio.gz || abort
+    popd > /dev/null
+else
     pushd build/ramdisk > /dev/null
      find . ! -name . | LC_ALL=C sort | cpio -o -H newc -R root:root | gzip > ../out/$MODEL/ramdisk.cpio.gz || abort
     popd > /dev/null
-    echo "-----------------------------------------------"
+fi
+echo "-----------------------------------------------"
 
     # Create boot image
     echo "Creating boot image..."
