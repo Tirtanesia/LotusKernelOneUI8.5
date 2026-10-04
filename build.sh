@@ -53,7 +53,6 @@ CORES=$(cat /proc/cpuinfo | grep -c processor)
 
 # Define toolchain variables
 CLANG_DIR=$PWD/toolchain/clang_14
-PATH=$CLANG_DIR/bin:$PATH
 
 # Check if toolchain exists
 if [ ! -d "$CLANG_DIR/bin" ]; then
@@ -63,15 +62,22 @@ if [ ! -d "$CLANG_DIR/bin" ]; then
     rm -rf $CLANG_DIR
     mkdir -p $CLANG_DIR
     pushd $CLANG_DIR > /dev/null
+    
+    # Mengunduh langsung ke folder clang_14
     curl -LJOk https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/master-kernel-build-2022/clang-r450784d.tar.gz
     tar -xf clang-r450784d.tar.gz
     rm clang-r450784d.tar.gz
+    
+    # MEMBERIKAN IZIN AKSES (PENTING untuk GitHub Actions)
+    chmod -R +x bin/
     
     echo "Cleaning up..."
     popd > /dev/null
 fi
 
+# Pastikan path ini ter-export secara global ke lingkungan env Runner
 export PATH="$CLANG_DIR/bin:$PATH"
+export LD_LIBRARY_PATH="$CLANG_DIR/lib64:$LD_LIBRARY_PATH"
 
 MAKE_ARGS="
 LLVM=1 \
